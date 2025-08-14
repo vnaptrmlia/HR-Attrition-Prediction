@@ -1038,8 +1038,8 @@ def main_app():
     st.sidebar.markdown(f"**🔍 Level Akses: HR Administrator**")
     st.sidebar.markdown("**✅ Akses Penuh:**")
     st.sidebar.write("• Penilaian Risiko Karyawan")
-    st.sidebar.write("• LIME Explanations")
-    st.sidebar.write("• Global Feature Importance")
+    st.sidebar.write("• Faktor Individual yang Mempengaruhi Prediksi")
+    st.sidebar.write("• aktor Utama yang Mempengaruhi Prediksi Secara Keseluruhan")
     st.sidebar.write("• Dashboard Analitik")
     
     st.markdown("---")
@@ -1246,3 +1246,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
