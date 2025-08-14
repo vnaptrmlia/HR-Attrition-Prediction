@@ -1018,7 +1018,7 @@ def main_app():
     ### 📊 **Tentang Sistem Analitik HR**
     Sistem prediksi attrisi karyawan berbasis Machine Learning yang dirancang khusus untuk membantu departemen HR dalam:
     - **🎯 Prediksi Risiko:** Mengidentifikasi karyawan yang berisiko tinggi keluar dari perusahaan
-    - **🔍 ** Penjelasan individual mengapa model memprediksi risiko tertentu
+    - 🔍 Penjelasan individual mengapa model memprediksi risiko tertentu
     - **📊 Feature Importance:** Memahami faktor-faktor global yang paling berpengaruh
     - **📈 Insight Mendalam:** Memberikan analisis berbasis data untuk pemahaman yang lebih baik
     
@@ -1244,4 +1244,5 @@ def main():
         login_page()
 
 if __name__ == "__main__":
+
     main()
