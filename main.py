@@ -25,7 +25,7 @@ warnings.filterwarnings('ignore')
 
 # Page configuration
 st.set_page_config(
-    page_title="Sistem Prediksi Attrisi Karyawan",
+    page_title="Aplikasi Prediksi Attrisi Karyawan",
     page_icon="👥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -1246,5 +1246,6 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
