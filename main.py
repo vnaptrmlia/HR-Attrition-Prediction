@@ -407,7 +407,7 @@ def login_page():
     """Halaman login dengan single admin"""
     st.markdown("""
     <div style="text-align: center; padding: 50px 0;">
-        <h1>👥 Sistem Prediksi Attrisi Karyawan</h1>
+        <h1>👥 Aplikasi Prediksi Attrisi Karyawan</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -419,7 +419,7 @@ def login_page():
         with st.form("login_form"):
             username = st.text_input("👤 Nama Pengguna", placeholder="Masukkan hr_admin")
             password = st.text_input("🔑 Kata Sandi", type="password", placeholder="Masukkan password")
-            submit_button = st.form_submit_button("🔓 Akses Sistem", use_container_width=True)
+            submit_button = st.form_submit_button("🔓 Akses Aplikasi", use_container_width=True)
             
             if submit_button:
                 if username in ADMIN_CREDENTIALS:
@@ -1010,13 +1010,13 @@ def main_app():
     display_name = st.session_state.get('display_name', username)
     
     # Header dengan informasi role
-    st.title(f"👥 Sistem Prediksi Attrisi Karyawan")
+    st.title(f"👥 Aplikasi Prediksi Attrisi Karyawan")
     
     st.markdown(f"""
-    **Selamat datang {display_name}** 🟢 **HR Administrator** | **🟢 Sistem Online** | **🛡️ Sesi Aman**
+    **Selamat datang {display_name}** 🟢 **HR Administrator** | **🟢 Aplikasi Online** | **🛡️ Sesi Aman**
     
-    ### 📊 **Tentang Sistem Analitik HR**
-    Sistem prediksi attrisi karyawan berbasis Machine Learning yang dirancang khusus untuk membantu departemen HR dalam:
+    ### 📊 **Tentang Aplikasi Analitik HR**
+    Aplikasi prediksi attrisi karyawan berbasis Machine Learning yang dirancang khusus untuk membantu departemen HR dalam:
     - **🎯 Prediksi Risiko:** Mengidentifikasi karyawan yang berisiko tinggi keluar dari perusahaan
     - 🔍 Penjelasan individual mengapa model memprediksi risiko tertentu
     - **📊 Feature Importance:** Memahami faktor-faktor global yang paling berpengaruh
@@ -1081,7 +1081,7 @@ def main_app():
     
     with tab2:
         st.header("📊 Dashboard Analitik")
-        st.markdown("**Overview kinerja sistem dan insight organisasi**")
+        st.markdown("**Overview kinerja Aplikasi dan insight organisasi**")
         
         col1, col2 = st.columns(2)
         
@@ -1246,6 +1246,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
