@@ -642,7 +642,7 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
             risk_level = "TINGGI"
             risk_color = "red"
             risk_description = "Karyawan ini memiliki probabilitas sangat tinggi untuk keluar dalam 6-12 bulan ke depan."
-        elif attrition_probability > 0.5:
+        elif attrition_probability > 0.4:
             st.warning("**⚠️ RISIKO SEDANG**")
             risk_level = "SEDANG" 
             risk_color = "orange"
@@ -1265,6 +1265,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
