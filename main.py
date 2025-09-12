@@ -743,103 +743,103 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
             
             def clean_lime_explanation(feature_text, value):
                 """Convert technical explanation to business-friendly format with ENHANCED DEBUG"""
-                    
-                    # DEBUG: Print raw feature text
-                    print(f"🔍 DEBUG LIME: Raw feature: '{feature_text}', value: {value}")
-                    
-                    # Extract base feature name (before any condition symbols)
-                    base_feature = feature_text.split(' ≤')[0].split(' >')[0].split(' <')[0].split('=')[0].strip()
-                    print(f"🔍 DEBUG LIME: Base feature extracted: '{base_feature}'")
-                    
-                    # Map technical names to business-friendly Indonesian
-                    feature_mapping = {
-                        'OverTime_Yes': 'Sering Kerja Lembur',
-                        'JobSatisfaction': 'Kepuasan Kerja Rendah',
-                        'WorkLifeBalance': 'Work-Life Balance Buruk', 
-                        'EnvironmentSatisfaction': 'Kepuasan Lingkungan Kerja Rendah',
-                        'MonthlyIncome': 'Gaji Bulanan Rendah',
-                        'Age': 'Usia Karyawan',
-                        'YearsAtCompany': 'Masa Kerja Pendek',
-                        'DistanceFromHome': 'Jarak Rumah Jauh',
-                        'YearsSinceLastPromotion': 'Lama Tanpa Promosi',
-                        'BusinessTravel_Travel_Frequently': 'Sering Perjalanan Dinas',
-                        'BusinessTravel_Travel_Rarely': 'Jarang Perjalanan Dinas',
-                        'JobLevel': 'Level Pekerjaan Rendah',
-                        'StockOptionLevel': 'Opsi Saham Rendah',
-                        'PercentSalaryHike': 'Kenaikan Gaji Rendah',
-                        'PerformanceRating': 'Rating Kinerja',
-                        'JobInvolvement': 'Keterlibatan Kerja Rendah',
-                        'RelationshipSatisfaction': 'Kepuasan Hubungan Kerja Rendah',
-                        'TotalWorkingYears': 'Total Pengalaman Kerja',
-                        'NumCompaniesWorked': 'Jumlah Perusahaan Sebelumnya',
-                        'Gender_Male': 'Jenis Kelamin Laki-laki',
-                        'MaritalStatus_Single': 'Status Lajang',
-                        'MaritalStatus_Married': 'Status Menikah',
-                        'YearsInCurrentRole': 'Lama di Posisi Saat Ini'
-                    }
-                    
-                    # Find exact matching feature name first
-                    clean_name = None
+                
+                # DEBUG: Print raw feature text
+                print(f"🔍 DEBUG LIME: Raw feature: '{feature_text}', value: {value}")
+                
+                # Extract base feature name (before any condition symbols)
+                base_feature = feature_text.split(' ≤')[0].split(' >')[0].split(' <')[0].split('=')[0].strip()
+                print(f"🔍 DEBUG LIME: Base feature extracted: '{base_feature}'")
+                
+                # Map technical names to business-friendly Indonesian
+                feature_mapping = {
+                    'OverTime_Yes': 'Sering Kerja Lembur',
+                    'JobSatisfaction': 'Kepuasan Kerja Rendah',
+                    'WorkLifeBalance': 'Work-Life Balance Buruk', 
+                    'EnvironmentSatisfaction': 'Kepuasan Lingkungan Kerja Rendah',
+                    'MonthlyIncome': 'Gaji Bulanan Rendah',
+                    'Age': 'Usia Karyawan',
+                    'YearsAtCompany': 'Masa Kerja Pendek',
+                    'DistanceFromHome': 'Jarak Rumah Jauh',
+                    'YearsSinceLastPromotion': 'Lama Tanpa Promosi',
+                    'BusinessTravel_Travel_Frequently': 'Sering Perjalanan Dinas',
+                    'BusinessTravel_Travel_Rarely': 'Jarang Perjalanan Dinas',
+                    'JobLevel': 'Level Pekerjaan Rendah',
+                    'StockOptionLevel': 'Opsi Saham Rendah',
+                    'PercentSalaryHike': 'Kenaikan Gaji Rendah',
+                    'PerformanceRating': 'Rating Kinerja',
+                    'JobInvolvement': 'Keterlibatan Kerja Rendah',
+                    'RelationshipSatisfaction': 'Kepuasan Hubungan Kerja Rendah',
+                    'TotalWorkingYears': 'Total Pengalaman Kerja',
+                    'NumCompaniesWorked': 'Jumlah Perusahaan Sebelumnya',
+                    'Gender_Male': 'Jenis Kelamin Laki-laki',
+                    'MaritalStatus_Single': 'Status Lajang',
+                    'MaritalStatus_Married': 'Status Menikah',
+                    'YearsInCurrentRole': 'Lama di Posisi Saat Ini'
+                }
+                
+                # Find exact matching feature name first
+                clean_name = None
+                for tech_name, friendly_name in feature_mapping.items():
+                    if tech_name == base_feature:
+                        clean_name = friendly_name
+                        print(f"✅ DEBUG LIME: Exact match found - {tech_name} -> {friendly_name}")
+                        break
+                
+                # Handle partial matches for complex feature names
+                if clean_name is None:
                     for tech_name, friendly_name in feature_mapping.items():
-                        if tech_name == base_feature:
+                        if tech_name in base_feature:
                             clean_name = friendly_name
-                            print(f"✅ DEBUG LIME: Exact match found - {tech_name} -> {friendly_name}")
+                            print(f"🟡 DEBUG LIME: Partial match found - {tech_name} -> {friendly_name}")
                             break
-                    
-                    # Handle partial matches for complex feature names
-                    if clean_name is None:
-                        for tech_name, friendly_name in feature_mapping.items():
-                            if tech_name in base_feature:
-                                clean_name = friendly_name
-                                print(f"🟡 DEBUG LIME: Partial match found - {tech_name} -> {friendly_name}")
-                                break
-                    
-                    # If no mapping found, skip showing to user
-                    if clean_name is None or clean_name == base_feature:
-                        # Remove underscores and clean up but mark as unmapped
-                        clean_candidate = base_feature.replace('_', ' ').replace('Field', '').replace('Education', 'Pendidikan')
-                        # Handle common patterns
-                        if 'Department' in clean_candidate:
-                            clean_candidate = clean_candidate.replace('Department', 'Dept.')
-                        elif 'JobRole' in clean_candidate:
-                            clean_candidate = clean_candidate.replace('JobRole', 'Posisi')
-                        
-                        print(f"❓ DEBUG LIME: No mapping found for '{base_feature}' - would use '{clean_candidate}' but will skip")
-                        return None, None  # Return None to skip unmapped features
-                    
-                    # Determine impact direction and create simple explanation
-                    impact_strength = abs(value)
-                    if impact_strength > 0.08:
-                        strength = "Sangat"
-                    elif impact_strength > 0.05:
-                        strength = "Cukup"
-                    else:
-                        strength = "Sedikit"
-                    
-                    print(f"📊 DEBUG LIME: Final result - '{feature_text}' -> '{clean_name}' ({strength} berpengaruh)")
-                    return clean_name, strength
                 
-                if positive_factors:
-                    st.markdown("**🔴 Faktor yang MENINGKATKAN risiko attrisi:**")
-                    shown_factors = 0
-                    for factor, value in positive_factors:
-                        if shown_factors >= 5:
-                            break
-                        clean_name, strength = clean_lime_explanation(factor, value)
-                        if clean_name is not None:  # Only show mapped factors
-                            st.write(f"• **{clean_name}** ({strength} berpengaruh: +{value:.3f})")
-                            shown_factors += 1
+                # If no mapping found, skip showing to user
+                if clean_name is None or clean_name == base_feature:
+                    # Remove underscores and clean up but mark as unmapped
+                    clean_candidate = base_feature.replace('_', ' ').replace('Field', '').replace('Education', 'Pendidikan')
+                    # Handle common patterns
+                    if 'Department' in clean_candidate:
+                        clean_candidate = clean_candidate.replace('Department', 'Dept.')
+                    elif 'JobRole' in clean_candidate:
+                        clean_candidate = clean_candidate.replace('JobRole', 'Posisi')
+                    
+                    print(f"❓ DEBUG LIME: No mapping found for '{base_feature}' - would use '{clean_candidate}' but will skip")
+                    return None, None  # Return None to skip unmapped features
                 
-                if negative_factors:
-                    st.markdown("**🟢 Faktor yang MENURUNKAN risiko attrisi:**")
-                    shown_factors = 0
-                    for factor, value in negative_factors:
-                        if shown_factors >= 5:
-                            break
-                        clean_name, strength = clean_lime_explanation(factor, value)
-                        if clean_name is not None:  # Only show mapped factors
-                            st.write(f"• **{clean_name}** ({strength} berpengaruh: {value:.3f})")
-                            shown_factors += 1
+                # Determine impact direction and create simple explanation
+                impact_strength = abs(value)
+                if impact_strength > 0.08:
+                    strength = "Sangat"
+                elif impact_strength > 0.05:
+                    strength = "Cukup"
+                else:
+                    strength = "Sedikit"
+                
+                print(f"📊 DEBUG LIME: Final result - '{feature_text}' -> '{clean_name}' ({strength} berpengaruh)")
+                return clean_name, strength
+            
+            if positive_factors:
+                st.markdown("**🔴 Faktor yang MENINGKATKAN risiko attrisi:**")
+                shown_factors = 0
+                for factor, value in positive_factors:
+                    if shown_factors >= 5:
+                        break
+                    clean_name, strength = clean_lime_explanation(factor, value)
+                    if clean_name is not None:  # Only show mapped factors
+                        st.write(f"• **{clean_name}** ({strength} berpengaruh: +{value:.3f})")
+                        shown_factors += 1
+            
+            if negative_factors:
+                st.markdown("**🟢 Faktor yang MENURUNKAN risiko attrisi:**")
+                shown_factors = 0
+                for factor, value in negative_factors:
+                    if shown_factors >= 5:
+                        break
+                    clean_name, strength = clean_lime_explanation(factor, value)
+                    if clean_name is not None:  # Only show mapped factors
+                        st.write(f"• **{clean_name}** ({strength} berpengaruh: {value:.3f})")
+                        shown_factors += 1
 
     # Risk Factors Analysis
     st.subheader("🔍 Analisis Faktor Risiko")
@@ -1265,6 +1265,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
