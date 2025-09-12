@@ -575,18 +575,18 @@ def prepare_model_input(hr_input, feature_names):
         'CompanyTenure_Pct': direct_mappings['YearsAtCompany'] / max(direct_mappings['YearsAtCompany'] + 5, 1)  # Assumption
     }
     
-    # 🆕 4. DEFAULT VALUES (12 features) - ADD THIS!
+    
     default_features = {
-        'TotalWorkingYears': direct_mappings['YearsAtCompany'] + 2,  # Assumption
-        'NumCompaniesWorked': 2,  # Default assumption
-        'TrainingTimesLastYear': 2,  # Default  
+        'TotalWorkingYears': direct_mappings['YearsAtCompany'] + 2, 
+        'NumCompaniesWorked': 2,  
+        'TrainingTimesLastYear': 2,
         'YearsWithCurrManager': min(direct_mappings['YearsInCurrentRole'], direct_mappings['YearsAtCompany']),
-        'HourlyRate': direct_mappings['MonthlyIncome'] / 160,  # Assumption: 160 hours/month
-        'DailyRate': direct_mappings['MonthlyIncome'] / 22,    # Assumption: 22 days/month
+        'HourlyRate': direct_mappings['MonthlyIncome'] / 160,  
+        'DailyRate': direct_mappings['MonthlyIncome'] / 22,   
         'MonthlyRate': direct_mappings['MonthlyIncome'],
-        'Education': 3,  # Assumption: Bachelor level
-        'JobInvolvement': 3,  # Default medium involvement
-        'RelationshipSatisfaction': 3,  # Default medium satisfaction
+        'Education': 3,  
+        'JobInvolvement': 3,  
+        'RelationshipSatisfaction': 3,  
         'WorkLifeBalance_Numeric': direct_mappings['WorkLifeBalance'],
         'JobSatisfaction_Numeric': direct_mappings['JobSatisfaction']
     }
@@ -1371,6 +1371,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
