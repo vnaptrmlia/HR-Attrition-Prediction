@@ -20,6 +20,12 @@ from sklearn.preprocessing import StandardScaler
 import base64
 from io import BytesIO
 
+import streamlit as st
+
+# Hapus semua cache
+st.cache_data.clear()
+st.cache_resource.clear()
+
 # Suppress warnings
 warnings.filterwarnings('ignore')
 
@@ -1236,6 +1242,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
