@@ -323,7 +323,7 @@ class HRFeatureCategorizer:
             )
             
         else:
-            # Profil preset dengan penjelasan - REMOVED FRESH GRADUATE
+            # Profil preset dengan penjelasan
             profiles = {
                 "🌟 Karyawan Berprestasi": {
                     "description": "High performer dengan kompensasi tinggi dan kepuasan kerja yang baik",
@@ -701,7 +701,7 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
         st.metric("Masa Kerja", f"{years_company} tahun")
         st.metric("Level Jabatan", job_level_text)
 
-    # LIME Explanation Section with DEBUG
+    # LIME Explanation Section
     st.subheader("🔍 Faktor Individual yang Mempengaruhi Prediksi")
     
     with st.spinner("Menghasilkan penjelasan..."):
@@ -736,70 +736,52 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
             st.plotly_chart(fig_lime, use_container_width=True)
         
         with col2:
-            st.markdown("**📝 Penjelasan Faktor**")
+            st.markdown("**📝Deskripsi**")
             
             positive_factors = [(f, v) for f, v in zip(features, values) if v > 0]
             negative_factors = [(f, v) for f, v in zip(features, values) if v < 0]
             
             def clean_lime_explanation(feature_text, value):
-                """Convert technical explanation to business-friendly format with DEBUG"""
-                
-                # DEBUG: Print raw feature text
-                print(f"🔍 DEBUG LIME: Raw feature: {feature_text}, value: {value}")
+                """Convert technical explanation to business-friendly format"""
                 
                 # Extract base feature name (before any condition symbols)
                 base_feature = feature_text.split(' ≤')[0].split(' >')[0].split(' <')[0].strip()
-                print(f"🔍 DEBUG LIME: Base feature: {base_feature}")
                 
-                # Enhanced feature mapping with more comprehensive coverage
+                # Map technical names to business-friendly Indonesian
                 feature_mapping = {
                     'OverTime_Yes': 'Sering Kerja Lembur',
-                    'JobSatisfaction': 'Kepuasan Kerja',
-                    'WorkLifeBalance': 'Work-Life Balance', 
-                    'EnvironmentSatisfaction': 'Kepuasan Lingkungan Kerja',
-                    'MonthlyIncome': 'Gaji Bulanan',
+                    'JobSatisfaction': 'Kepuasan Kerja Rendah',
+                    'WorkLifeBalance': 'Work-Life Balance Buruk', 
+                    'EnvironmentSatisfaction': 'Kepuasan Lingkungan Kerja Rendah',
+                    'MonthlyIncome': 'Gaji Bulanan Rendah',
                     'Age': 'Usia Karyawan',
-                    'YearsAtCompany': 'Masa Kerja di Perusahaan',
-                    'DistanceFromHome': 'Jarak dari Rumah',
-                    'YearsSinceLastPromotion': 'Tahun Tanpa Promosi',
+                    'YearsAtCompany': 'Masa Kerja Pendek',
+                    'DistanceFromHome': 'Jarak Rumah Jauh',
+                    'YearsSinceLastPromotion': 'Lama Tanpa Promosi',
                     'BusinessTravel_Travel_Frequently': 'Sering Perjalanan Dinas',
                     'BusinessTravel_Travel_Rarely': 'Jarang Perjalanan Dinas',
-                    'JobLevel': 'Level Pekerjaan',
-                    'StockOptionLevel': 'Level Opsi Saham',
-                    'PercentSalaryHike': 'Persentase Kenaikan Gaji',
+                    'JobLevel': 'Level Pekerjaan Rendah',
+                    'StockOptionLevel': 'Opsi Saham Rendah',
+                    'PercentSalaryHike': 'Kenaikan Gaji Rendah',
                     'PerformanceRating': 'Rating Kinerja',
-                    'JobInvolvement': 'Keterlibatan Kerja',
-                    'RelationshipSatisfaction': 'Kepuasan Hubungan Kerja',
+                    'JobInvolvement': 'Keterlibatan Kerja Rendah',
+                    'RelationshipSatisfaction': 'Kepuasan Hubungan Kerja Rendah',
                     'TotalWorkingYears': 'Total Pengalaman Kerja',
                     'NumCompaniesWorked': 'Jumlah Perusahaan Sebelumnya',
                     'Gender_Male': 'Jenis Kelamin Laki-laki',
                     'MaritalStatus_Single': 'Status Lajang',
-                    'MaritalStatus_Married': 'Status Menikah',
-                    'YearsInCurrentRole': 'Lama di Posisi Saat Ini',
-                    'Education_Bachelor': 'Pendidikan Sarjana',
-                    'Education_Master': 'Pendidikan Magister',
-                    'JobRole_Sales': 'Posisi Sales',
-                    'Department_Sales': 'Departemen Sales'
+                    'MaritalStatus_Married': 'Status Menikah'
                 }
                 
-                # Find matching feature name
-                clean_name = None
+                # Handle partial matches for complex feature names
+                clean_name = base_feature
                 for tech_name, friendly_name in feature_mapping.items():
                     if tech_name in base_feature:
                         clean_name = friendly_name
-                        print(f"✅ DEBUG LIME: Matched {tech_name} -> {friendly_name}")
                         break
                 
-                # If no exact match found, try partial matching
-                if clean_name is None:
-                    for tech_name, friendly_name in feature_mapping.items():
-                        if tech_name.lower() in base_feature.lower():
-                            clean_name = friendly_name
-                            print(f"🟡 DEBUG LIME: Partial match {tech_name} -> {friendly_name}")
-                            break
-                
-                # If still no mapping found, clean the technical name
-                if clean_name is None:
+                # If no mapping found, clean the technical name
+                if clean_name == base_feature:
                     # Remove underscores and clean up
                     clean_name = base_feature.replace('_', ' ').replace('Field', '').replace('Education', 'Pendidikan')
                     # Handle common patterns
@@ -807,7 +789,6 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
                         clean_name = clean_name.replace('Department', 'Dept.')
                     elif 'JobRole' in clean_name:
                         clean_name = clean_name.replace('JobRole', 'Posisi')
-                    print(f"❓ DEBUG LIME: No mapping found, using cleaned: {clean_name}")
                 
                 # Determine impact direction and create simple explanation
                 impact_strength = abs(value)
@@ -818,7 +799,6 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
                 else:
                     strength = "Sedikit"
                 
-                print(f"📊 DEBUG LIME: Final mapping: {feature_text} -> {clean_name} ({strength} berpengaruh)")
                 return clean_name, strength
             
             if positive_factors:
@@ -1259,4 +1239,11 @@ def main():
         login_page()
 
 if __name__ == "__main__":
+
     main()
+
+
+
+
+
+
