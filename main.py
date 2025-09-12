@@ -168,7 +168,7 @@ class HRFeatureCategorizer:
         
         profile = st.sidebar.selectbox(
             "Profil Cepat:",
-            ["📊 Input Manual", "🌟 Karyawan Berprestasi", "📈 Karyawan Biasa", "🆕 Fresh Graduate", "⚠️ Karyawan Berisiko"],
+            ["📊 Input Manual", "🌟 Karyawan Berprestasi", "📈 Karyawan Biasa", "⚠️ Karyawan Berisiko"],
             help="Pilih profil template untuk mengisi data dengan cepat, atau pilih Input Manual untuk kustomisasi lengkap"
         )
         
@@ -338,16 +338,6 @@ class HRFeatureCategorizer:
                         "OverTime": "Tidak", "BusinessTravel": "Jarang", "MonthlyIncome": 5000, "PercentSalaryHike": 13,
                         "StockOptionLevel": "Dasar", "JobSatisfaction": "Tinggi", "WorkLifeBalance": "Lebih Baik",
                         "EnvironmentSatisfaction": "Tinggi", "PerformanceRating": "Sangat Baik"
-                    }
-                },
-                "🆕 Fresh Graduate": {
-                    "description": "Karyawan baru lulusan dengan adaptasi awal dan gaji entry level",
-                    "data": {
-                        "Age": 24, "Gender": "Laki-laki", "MaritalStatus": "Lajang", "DistanceFromHome": 15,
-                        "JobLevel": "Pemula", "YearsAtCompany": 1, "YearsInCurrentRole": 1, "YearsSinceLastPromotion": 0,
-                        "OverTime": "Ya", "BusinessTravel": "Tidak Pernah", "MonthlyIncome": 3000, "PercentSalaryHike": 11,
-                        "StockOptionLevel": "Tidak Ada", "JobSatisfaction": "Tinggi", "WorkLifeBalance": "Baik",
-                        "EnvironmentSatisfaction": "Tinggi", "PerformanceRating": "Baik"
                     }
                 },
                 "⚠️ Karyawan Berisiko": {
@@ -1246,6 +1236,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
