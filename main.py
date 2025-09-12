@@ -742,10 +742,14 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
             negative_factors = [(f, v) for f, v in zip(features, values) if v < 0]
             
             def clean_lime_explanation(feature_text, value):
-                """Convert technical explanation to business-friendly format"""
+            """Convert technical explanation to business-friendly format with ENHANCED DEBUG"""
+                
+                # DEBUG: Print raw feature text
+                print(f"🔍 DEBUG LIME: Raw feature: '{feature_text}', value: {value}")
                 
                 # Extract base feature name (before any condition symbols)
-                base_feature = feature_text.split(' ≤')[0].split(' >')[0].split(' <')[0].strip()
+                base_feature = feature_text.split(' ≤')[0].split(' >')[0].split(' <')[0].split('=')[0].strip()
+                print(f"🔍 DEBUG LIME: Base feature extracted: '{base_feature}'")
                 
                 # Map technical names to business-friendly Indonesian
                 feature_mapping = {
@@ -770,25 +774,38 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
                     'NumCompaniesWorked': 'Jumlah Perusahaan Sebelumnya',
                     'Gender_Male': 'Jenis Kelamin Laki-laki',
                     'MaritalStatus_Single': 'Status Lajang',
-                    'MaritalStatus_Married': 'Status Menikah'
+                    'MaritalStatus_Married': 'Status Menikah',
+                    'YearsInCurrentRole': 'Lama di Posisi Saat Ini'
                 }
                 
-                # Handle partial matches for complex feature names
-                clean_name = base_feature
+                # Find exact matching feature name first
+                clean_name = None
                 for tech_name, friendly_name in feature_mapping.items():
-                    if tech_name in base_feature:
+                    if tech_name == base_feature:
                         clean_name = friendly_name
+                        print(f"✅ DEBUG LIME: Exact match found - {tech_name} -> {friendly_name}")
                         break
                 
-                # If no mapping found, clean the technical name
-                if clean_name == base_feature:
-                    # Remove underscores and clean up
-                    clean_name = base_feature.replace('_', ' ').replace('Field', '').replace('Education', 'Pendidikan')
+                # Handle partial matches for complex feature names
+                if clean_name is None:
+                    for tech_name, friendly_name in feature_mapping.items():
+                        if tech_name in base_feature:
+                            clean_name = friendly_name
+                            print(f"🟡 DEBUG LIME: Partial match found - {tech_name} -> {friendly_name}")
+                            break
+                
+                # If no mapping found, skip showing to user
+                if clean_name is None or clean_name == base_feature:
+                    # Remove underscores and clean up but mark as unmapped
+                    clean_candidate = base_feature.replace('_', ' ').replace('Field', '').replace('Education', 'Pendidikan')
                     # Handle common patterns
-                    if 'Department' in clean_name:
-                        clean_name = clean_name.replace('Department', 'Dept.')
-                    elif 'JobRole' in clean_name:
-                        clean_name = clean_name.replace('JobRole', 'Posisi')
+                    if 'Department' in clean_candidate:
+                        clean_candidate = clean_candidate.replace('Department', 'Dept.')
+                    elif 'JobRole' in clean_candidate:
+                        clean_candidate = clean_candidate.replace('JobRole', 'Posisi')
+                    
+                    print(f"❓ DEBUG LIME: No mapping found for '{base_feature}' - would use '{clean_candidate}' but will skip")
+                    return None, None  # Return None to skip unmapped features
                 
                 # Determine impact direction and create simple explanation
                 impact_strength = abs(value)
@@ -799,23 +816,30 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
                 else:
                     strength = "Sedikit"
                 
+                print(f"📊 DEBUG LIME: Final result - '{feature_text}' -> '{clean_name}' ({strength} berpengaruh)")
                 return clean_name, strength
             
             if positive_factors:
                 st.markdown("**🔴 Faktor yang MENINGKATKAN risiko attrisi:**")
-                for factor, value in positive_factors[:5]:
+                shown_factors = 0
+                for factor, value in positive_factors:
+                    if shown_factors >= 5:
+                        break
                     clean_name, strength = clean_lime_explanation(factor, value)
-                    st.write(f"• **{clean_name}** ({strength} berpengaruh: +{value:.3f})")
+                    if clean_name is not None:  # Only show mapped factors
+                        st.write(f"• **{clean_name}** ({strength} berpengaruh: +{value:.3f})")
+                        shown_factors += 1
             
             if negative_factors:
                 st.markdown("**🟢 Faktor yang MENURUNKAN risiko attrisi:**")
-                for factor, value in negative_factors[:5]:
+                shown_factors = 0
+                for factor, value in negative_factors:
+                    if shown_factors >= 5:
+                        break
                     clean_name, strength = clean_lime_explanation(factor, value)
-                    st.write(f"• **{clean_name}** ({strength} berpengaruh: {value:.3f})")
-        
-                
-    else:
-        st.info("ℹ️ Analisis LIME tidak tersedia. Menggunakan analisis faktor risiko tradisional.")
+                    if clean_name is not None:  # Only show mapped factors
+                        st.write(f"• **{clean_name}** ({strength} berpengaruh: {value:.3f})")
+                        shown_factors += 1
 
     # Risk Factors Analysis
     st.subheader("🔍 Analisis Faktor Risiko")
@@ -1241,6 +1265,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
