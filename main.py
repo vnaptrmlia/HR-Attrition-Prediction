@@ -431,7 +431,6 @@ def login_page():
                 else:
                     st.error("❌ Nama pengguna tidak ditemukan!")
         
-
 @st.cache_resource
 def load_model_components():
     """Load komponen model dengan interpretability artifacts"""
@@ -446,24 +445,79 @@ def load_model_components():
         with open('enhanced_models/model_metadata.pkl', 'rb') as f:
             metadata = pickle.load(f)
         
-        # Load interpretability artifacts
+        # 🔥 FORCE OVERRIDE: Use LR Coefficients instead of pkl file
+        print("🔄 OVERRIDE: Generating feature importance from LR coefficients...")
+        
         try:
-            with open('enhanced_models/global_feature_importance.pkl', 'rb') as f:
-                global_importance = pickle.load(f)
-                # Debug: Print the actual format
-                print(f"🔍 DEBUG: global_importance type: {type(global_importance)}")
-                print(f"🔍 DEBUG: global_importance shape/len: {getattr(global_importance, 'shape', len(global_importance) if hasattr(global_importance, '__len__') else 'No length')}")
-                if hasattr(global_importance, 'dtype'):
-                    print(f"🔍 DEBUG: global_importance dtype: {global_importance.dtype}")
+            # Extract LR coefficients directly from loaded model
+            lr_coefficients = np.abs(model.coef_[0])
+            
+            # Create corrected global importance using LR coefficients
+            global_importance = pd.DataFrame({
+                'Feature': feature_names,
+                'Importance': lr_coefficients
+            }).sort_values('Importance', ascending=False)
+            
+            print(f"✅ Override SUCCESS: LR coefficients range {lr_coefficients.min():.6f} - {lr_coefficients.max():.6f}")
+            print(f"🏆 Top feature: {global_importance.iloc[0]['Feature']} ({global_importance.iloc[0]['Importance']:.6f})")
+            
         except Exception as e:
-            global_importance = None
-            print(f"❌ Error loading global_importance: {e}")
+            print(f"❌ LR coefficient extraction failed: {e}")
+            # Fallback: try to load from pkl
+            try:
+                with open('enhanced_models/global_feature_importance.pkl', 'rb') as f:
+                    global_importance = pickle.load(f)
+                    print(f"⚠️ FALLBACK: Using pkl file - may be inconsistent")
+                    print(f"🔍 DEBUG: global_importance type: {type(global_importance)}")
+                    print(f"🔍 DEBUG: global_importance shape/len: {getattr(global_importance, 'shape', len(global_importance) if hasattr(global_importance, '__len__') else 'No length')}")
+                    if hasattr(global_importance, 'dtype'):
+                        print(f"🔍 DEBUG: global_importance dtype: {global_importance.dtype}")
+            except Exception as e2:
+                global_importance = None
+                print(f"❌ Error loading global_importance pkl: {e2}")
             
         try:
             with open('enhanced_models/feature_descriptions.pkl', 'rb') as f:
                 feature_descriptions = pickle.load(f)
         except:
             feature_descriptions = {}
+        
+        # Load LIME configuration
+        try:
+            with open('enhanced_models/lime_config.pkl', 'rb') as f:
+                lime_config = pickle.load(f)
+        except:
+            lime_config = None
+        
+        # Load interpretability metadata
+        try:
+            with open('enhanced_models/interpretability_metadata.pkl', 'rb') as f:
+                interpretability_metadata = pickle.load(f)
+        except:
+            interpretability_metadata = {}
+        
+        # Load explanation cache
+        try:
+            with open('enhanced_models/explanation_cache.pkl', 'rb') as f:
+                explanation_cache = pickle.load(f)
+        except:
+            explanation_cache = {}
+        
+        # Load streamlit helpers
+        try:
+            with open('enhanced_models/streamlit_helpers.pkl', 'rb') as f:
+                streamlit_helpers = pickle.load(f)
+        except:
+            streamlit_helpers = {}
+        
+        return model, scaler, feature_names, metadata, global_importance, feature_descriptions, lime_config, interpretability_metadata, explanation_cache, streamlit_helpers
+        
+    except FileNotFoundError as e:
+        st.error(f"🚨 File model tidak ditemukan: {e}. Menggunakan mode demo.")
+        return None, None, None, None, None, None, None, None, None, None
+    except Exception as e:
+        st.error(f"🚨 Error loading model: {e}")
+        return None, None, None, None, None, None, None, None, None, None
             
         # Load LIME configuration
         try:
@@ -1371,6 +1425,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
