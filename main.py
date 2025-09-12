@@ -500,31 +500,29 @@ def load_model_components():
         return None, None, None, {"model_type": "Demo", "test_accuracy": 0.87, "roc_auc": 0.82}, None, {}, None, {}, {}, {}
 
 def prepare_model_input(hr_input, feature_names):
-    """Prepare input untuk prediksi model"""
+    """Complete 17 → 47 feature reconstruction"""
     
-    model_input = pd.DataFrame(index=[0], columns=feature_names)
-    model_input = model_input.fillna(0)
+    # Initialize with all 47 features
+    model_input = pd.DataFrame(index=[0], columns=feature_names).fillna(0)
     
-    feature_mapping = {
-        'Age': 'Age',
-        'MonthlyIncome': 'MonthlyIncome', 
-        'YearsAtCompany': 'YearsAtCompany',
-        'YearsInCurrentRole': 'YearsInCurrentRole',
-        'YearsSinceLastPromotion': 'YearsSinceLastPromotion',
-        'DistanceFromHome': 'DistanceFromHome',
-        'PercentSalaryHike': 'PercentSalaryHike',
-        'JobLevel': 'JobLevel',
-        'StockOptionLevel': 'StockOptionLevel',
-        'JobSatisfaction': 'JobSatisfaction',
-        'WorkLifeBalance': 'WorkLifeBalance',
-        'EnvironmentSatisfaction': 'EnvironmentSatisfaction',
-        'PerformanceRating': 'PerformanceRating'
+    # ✅ 1. DIRECT MAPPING (13 features) - KEEP EXISTING
+    direct_mappings = {
+        'Age': hr_input.get('Age', 30),
+        'MonthlyIncome': hr_input.get('MonthlyIncome', 5000),
+        'YearsAtCompany': hr_input.get('YearsAtCompany', 3),
+        'YearsInCurrentRole': hr_input.get('YearsInCurrentRole', 2),
+        'YearsSinceLastPromotion': hr_input.get('YearsSinceLastPromotion', 1),
+        'DistanceFromHome': hr_input.get('DistanceFromHome', 5),
+        'PercentSalaryHike': hr_input.get('PercentSalaryHike', 15),
+        'JobLevel': hr_input.get('JobLevel', 2),
+        'StockOptionLevel': hr_input.get('StockOptionLevel', 1),
+        'JobSatisfaction': hr_input.get('JobSatisfaction', 3),
+        'WorkLifeBalance': hr_input.get('WorkLifeBalance', 3),
+        'EnvironmentSatisfaction': hr_input.get('EnvironmentSatisfaction', 3),
+        'PerformanceRating': hr_input.get('PerformanceRating', 3)
     }
     
-    for hr_key, model_key in feature_mapping.items():
-        if hr_key in hr_input and model_key in model_input.columns:
-            model_input[model_key] = hr_input[hr_key]
-    
+    # ✅ 2. CATEGORICAL ONE-HOT (6 features) - KEEP EXISTING  
     categorical_mappings = {
         'Gender_Male': 1 if hr_input.get('Gender', 0) == 1 else 0,
         'MaritalStatus_Married': 1 if hr_input.get('MaritalStatus', 0) == 1 else 0,
@@ -534,9 +532,117 @@ def prepare_model_input(hr_input, feature_names):
         'BusinessTravel_Travel_Rarely': 1 if hr_input.get('BusinessTravel', 0) == 1 else 0,
     }
     
-    for model_key, value in categorical_mappings.items():
-        if model_key in model_input.columns:
-            model_input[model_key] = value
+    # 🆕 3. ENGINEERED FEATURES (16 features) - ADD THIS!
+    engineered_features = {
+        # Salary-based ratios
+        'SalaryToAge_Ratio': direct_mappings['MonthlyIncome'] / max(direct_mappings['Age'], 1),
+        'SalaryToExperience_Ratio': direct_mappings['MonthlyIncome'] / max(direct_mappings['YearsAtCompany'] + 1, 1),
+        
+        # Satisfaction composite
+        'Overall_Satisfaction': (
+            direct_mappings['JobSatisfaction'] + 
+            direct_mappings['EnvironmentSatisfaction'] + 
+            direct_mappings['WorkLifeBalance']
+        ) / 3,
+        
+        # Work-life burden features  
+        'Travel_Burden': calculate_travel_burden(hr_input.get('BusinessTravel', 0)),
+        'Distance_Burden': min(direct_mappings['DistanceFromHome'] / 30.0, 1.0),
+        'Overtime_Burden': hr_input.get('OverTime', 0),
+        'WorkLife_Burden': (
+            calculate_travel_burden(hr_input.get('BusinessTravel', 0)) +
+            min(direct_mappings['DistanceFromHome'] / 30.0, 1.0) +
+            hr_input.get('OverTime', 0)
+        ),
+        
+        # Risk scoring features
+        'Age_Risk': calculate_age_risk(direct_mappings['Age']),
+        'Experience_Risk': calculate_experience_risk(direct_mappings['YearsAtCompany']),
+        'JobLevel_Risk': calculate_joblevel_risk(direct_mappings['JobLevel']),
+        'Composite_Risk_Score': (
+            calculate_age_risk(direct_mappings['Age']) +
+            calculate_experience_risk(direct_mappings['YearsAtCompany']) +
+            calculate_joblevel_risk(direct_mappings['JobLevel'])
+        ) / 3,
+        
+        # Interaction features
+        'Young_HighEarner': 1 if (direct_mappings['Age'] < 35 and direct_mappings['MonthlyIncome'] > 8000) else 0,
+        
+        # Career progression
+        'SalaryPercentile_InRole': 0.5,  # Assumption: median
+        'YearsSinceLastPromotion_Pct': direct_mappings['YearsSinceLastPromotion'] / max(direct_mappings['YearsAtCompany'] + 1, 1),
+        'RoleStagnation': 1 if direct_mappings['YearsSinceLastPromotion'] > 3 else 0,
+        'CompanyTenure_Pct': direct_mappings['YearsAtCompany'] / max(direct_mappings['YearsAtCompany'] + 5, 1)  # Assumption
+    }
+    
+    # 🆕 4. DEFAULT VALUES (12 features) - ADD THIS!
+    default_features = {
+        'TotalWorkingYears': direct_mappings['YearsAtCompany'] + 2,  # Assumption
+        'NumCompaniesWorked': 2,  # Default assumption
+        'TrainingTimesLastYear': 2,  # Default  
+        'YearsWithCurrManager': min(direct_mappings['YearsInCurrentRole'], direct_mappings['YearsAtCompany']),
+        'HourlyRate': direct_mappings['MonthlyIncome'] / 160,  # Assumption: 160 hours/month
+        'DailyRate': direct_mappings['MonthlyIncome'] / 22,    # Assumption: 22 days/month
+        'MonthlyRate': direct_mappings['MonthlyIncome'],
+        'Education': 3,  # Assumption: Bachelor level
+        'JobInvolvement': 3,  # Default medium involvement
+        'RelationshipSatisfaction': 3,  # Default medium satisfaction
+        'WorkLifeBalance_Numeric': direct_mappings['WorkLifeBalance'],
+        'JobSatisfaction_Numeric': direct_mappings['JobSatisfaction']
+    }
+    
+    # Apply all mappings to model_input
+    all_features = {**direct_mappings, **categorical_mappings, **engineered_features, **default_features}
+    
+    for feature_name, value in all_features.items():
+        if feature_name in model_input.columns:
+            model_input[feature_name] = value
+    
+    return model_input
+
+# 🆕 ADD HELPER FUNCTIONS:
+def calculate_travel_burden(business_travel):
+    travel_map = {0: 0.0, 1: 0.3, 2: 1.0}  # Non-Travel, Rarely, Frequently
+    return travel_map.get(business_travel, 0)
+
+def calculate_age_risk(age):
+    if age < 25 or age > 55:
+        return 1.0
+    elif age < 30 or age > 50:
+        return 0.5
+    else:
+        return 0.0
+        
+def calculate_experience_risk(years):
+    if years < 2 or years > 15:
+        return 1.0
+    elif years < 5 or years > 10:
+        return 0.5  
+    else:
+        return 0.0
+        
+def calculate_joblevel_risk(job_level):
+    if job_level == 1:  # Entry level
+        return 0.8
+    elif job_level >= 4:  # Senior level  
+        return 0.3
+    else:
+        return 0.5
+    
+    if debug:
+        st.write("🔍 Feature Reconstruction Debug:")
+        st.write(f"Input features: {len(hr_input)}")
+        st.write(f"Output features: {model_input.shape[1]}")
+        st.write(f"Non-zero features: {(model_input != 0).sum().sum()}")
+        
+        # Show feature breakdown
+        feature_counts = {
+            'Direct': len([f for f in direct_mappings.keys() if f in model_input.columns]),
+            'Categorical': len([f for f in categorical_mappings.keys() if f in model_input.columns]),
+            'Engineered': len([f for f in engineered_features.keys() if f in model_input.columns]),
+            'Defaults': len([f for f in default_features.keys() if f in model_input.columns])
+        }
+        st.write("Feature breakdown:", feature_counts)
     
     return model_input
 
@@ -1265,6 +1371,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
