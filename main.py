@@ -1394,23 +1394,12 @@ def main_app():
         
         with col1:
             st.markdown("**📈 Rata-rata Tingkat Attrisi**")
-            st.info("15.4% per tahun")
-            st.caption("Target: <14%")
+            st.info("16.1% per tahun")
         
         with col2:
             st.markdown("**🎯 Tingkat Deteksi Dini**")
-            st.info("73% kasus terdeteksi")
+            st.info("83.9% kasus terdeteksi")
             st.caption("dari total attrisi aktual")
-        
-        with col3:
-            st.markdown("**⏰ Waktu Prediksi Rata-rata**")
-            st.info("2.3 bulan sebelum resign")
-            st.caption("window untuk intervensi")
-        
-        with col4:
-            st.markdown("**🏆 Departemen Terstabil**")
-            st.info("HR Department")
-            st.caption("12% tingkat attrisi")
 
 def main():
     """Fungsi utama dengan enhanced interpretability"""
@@ -1425,6 +1414,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
