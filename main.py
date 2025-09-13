@@ -336,13 +336,13 @@ class HRFeatureCategorizer:
                     }
                 },
                 "📈 Karyawan Biasa": {
-                    "description": "Karyawan dengan performa rata-rata dan kondisi kerja yang stabil",
+                    "description": "Karyawan dengan performa rata-rata dan beberapa area concern yang perlu monitoring",
                     "data": {
-                        "Age": 32, "Gender": "Perempuan", "MaritalStatus": "Menikah", "DistanceFromHome": 7,
-                        "JobLevel": "Menengah", "YearsAtCompany": 5, "YearsInCurrentRole": 2, "YearsSinceLastPromotion": 2,
-                        "OverTime": "Tidak", "BusinessTravel": "Jarang", "MonthlyIncome": 5000, "PercentSalaryHike": 13,
-                        "StockOptionLevel": "Dasar", "JobSatisfaction": "Tinggi", "WorkLifeBalance": "Lebih Baik",
-                        "EnvironmentSatisfaction": "Tinggi", "PerformanceRating": "Sangat Baik"
+                        "Age": 28, "Gender": "Perempuan", "MaritalStatus": "Lajang", "DistanceFromHome": 18,
+                        "JobLevel": "Junior", "YearsAtCompany": 3, "YearsInCurrentRole": 3, "YearsSinceLastPromotion": 3,
+                        "OverTime": "Tidak", "BusinessTravel": "Jarang", "MonthlyIncome": 4200, "PercentSalaryHike": 10,
+                        "StockOptionLevel": "Tidak Ada", "JobSatisfaction": "Sedang", "WorkLifeBalance": "Baik",
+                        "EnvironmentSatisfaction": "Sedang", "PerformanceRating": "Baik"
                     }
                 },
                 "⚠️ Karyawan Berisiko": {
@@ -1422,6 +1422,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
