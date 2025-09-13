@@ -1401,6 +1401,16 @@ def main_app():
             st.info("83.9% kasus terdeteksi")
             st.caption("dari total attrisi aktual")
 
+        with col3:
+                    st.markdown("**⏰ Waktu Prediksi Rata-rata**")
+                    st.info("2.3 bulan sebelum resign")
+                    st.caption("window untuk intervensi")
+        
+        with col4:
+            st.markdown("**🏆 Departemen Terstabil**")
+            st.info("HR Department")
+            st.caption("12% tingkat attrisi")
+
 def main():
     """Fungsi utama dengan enhanced interpretability"""
     if 'logged_in' not in st.session_state:
@@ -1414,6 +1424,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
