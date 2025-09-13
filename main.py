@@ -1274,7 +1274,7 @@ def main_app():
             
             st.subheader("🏢 Analisis Risiko Departemen")
             dept_data = {
-                'Departemen': ['Sales', 'Engineering', 'Marketing', 'HR', 'Finance'],
+                'Departemen': ['Sales', 'Techninal', 'Marketing', 'HR', 'Medical'],
                 'Risiko_Rata2': [0.28, 0.15, 0.22, 0.12, 0.18],
                 'Jumlah_Karyawan': [150, 200, 75, 25, 50]
             }
@@ -1414,6 +1414,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
