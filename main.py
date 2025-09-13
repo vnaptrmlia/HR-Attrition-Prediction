@@ -623,7 +623,7 @@ def prepare_model_input(hr_input, feature_names):
         'Young_HighEarner': 1 if (direct_mappings['Age'] < 35 and direct_mappings['MonthlyIncome'] > 8000) else 0,
         
         # Career progression
-        'SalaryPercentile_InRole': 0.5,  # Assumption: median
+        'SalaryPercentile_InRole': 0.5,
         'YearsSinceLastPromotion_Pct': direct_mappings['YearsSinceLastPromotion'] / max(direct_mappings['YearsAtCompany'] + 1, 1),
         'RoleStagnation': 1 if direct_mappings['YearsSinceLastPromotion'] > 3 else 0,
         'CompanyTenure_Pct': direct_mappings['YearsAtCompany'] / max(direct_mappings['YearsAtCompany'] + 5, 1)  # Assumption
@@ -689,7 +689,6 @@ def calculate_joblevel_risk(job_level):
         st.write(f"Output features: {model_input.shape[1]}")
         st.write(f"Non-zero features: {(model_input != 0).sum().sum()}")
         
-        # Show feature breakdown
         feature_counts = {
             'Direct': len([f for f in direct_mappings.keys() if f in model_input.columns]),
             'Categorical': len([f for f in categorical_mappings.keys() if f in model_input.columns]),
@@ -715,7 +714,6 @@ def create_lime_explanation(model, scaler, hr_input, feature_names, lime_config=
             cached_exp = explanation_cache[input_key]
             return cached_exp['features'], cached_exp['values'], None
         
-        # Create LIME explainer using lime_config
         if lime_config is not None:
             # Use config parameters
             num_features = lime_config.get('num_features', 10)
@@ -797,12 +795,12 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
     with col1:
         st.subheader("📊 Level Risiko")
         
-        if attrition_probability > 0.7:
+        if attrition_probability > 0.65:
             st.error("**🚨 RISIKO TINGGI**")
             risk_level = "TINGGI"
             risk_color = "red"
             risk_description = "Karyawan ini memiliki probabilitas sangat tinggi untuk keluar dalam 6-12 bulan ke depan."
-        elif attrition_probability > 0.4:
+        elif attrition_probability > 0.35:
             st.warning("**⚠️ RISIKO SEDANG**")
             risk_level = "SEDANG" 
             risk_color = "orange"
@@ -997,7 +995,7 @@ def display_prediction_results(prediction, prediction_proba, hr_input, metadata,
                     if shown_factors >= 5:
                         break
                     clean_name, strength = clean_lime_explanation(factor, value)
-                    if clean_name is not None:  # Only show mapped factors
+                    if clean_name is not None: 
                         st.write(f"• **{clean_name}** ({strength} berpengaruh: {value:.3f})")
                         shown_factors += 1
 
@@ -1424,6 +1422,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
